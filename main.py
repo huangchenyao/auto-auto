@@ -35,29 +35,59 @@ def ad_start():
     png_file = screen_shot(png_name)
     img = cv2.imread(png_file, 0)
     threshold = 0.85
-    ad_pos = {
-        'x0': 945,
-        'y0': 255,
-        'x1': 1045,
-        'y1': 345,
-    }
-
+    ad_pos = {'x0': 945, 'y0': 255, 'x1': 1045, 'y1': 345}
     ad_template = cv2.imread('./screenshot/ad_template.png', 0)
+
     ad = img[ad_pos['y0']:ad_pos['y1'], ad_pos['x0']:ad_pos['x1']]
     match_rate = cv2.matchTemplate(ad, ad_template, cv2.TM_CCOEFF_NORMED)
     if (match_rate > threshold).any():
-        tap_random(ad_pos['x0'] + 20, ad_pos['x1'] - 20, ad_pos['y0'] + 20, ad_pos['y1'] - 20)
+        tap_random(ad_pos['x0'] + 20, ad_pos['y0'] + 20, ad_pos['x1'] - 20, ad_pos['y1'] - 20)
         time.sleep(2)
+        tap_random(590, 1450, 960, 1520)
 
 
 def ad_close():
-    pass
+    png_file = screen_shot(png_name)
+    img = cv2.imread(png_file, 0)
+
+    top_right_close_pos1 = {'x0': 950, 'y0': 110, 'x1': 1050, 'y1': 210}
+    top_right_close_template1 = './screenshot/top_right_close_template1.png'
+    ad_close_template(img, top_right_close_pos1, top_right_close_template1)
+
+    top_right_close_pos2 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
+    top_right_close_template2 = './screenshot/top_right_close_template2.png'
+
+    ad_close_template(img, top_right_close_pos2, top_right_close_template2)
+
+
+def ad_close_template(img, close_pos, close_template):
+    threshold = 0.85
+    close_template = cv2.imread(close_template, 0)
+
+    close = img[close_pos['y0']:close_pos['y1'], close_pos['x0']:close_pos['x1']]
+
+    match_rate = cv2.matchTemplate(close, close_template, cv2.TM_CCOEFF_NORMED)
+    if (match_rate > threshold).any():
+        tap_random(close_pos['x0'] + 20, close_pos['y0'] + 20, close_pos['x1'] - 20, close_pos['y1'] - 20)
+        time.sleep(2.5)
+        tap_random(270, 585, 270 * 3, 585 * 3)
+
+
+def ad_auto():
+    while True:
+        ad_start()
+        ad_close()
+        time.sleep(2)
 
 
 png_name = 'liao_li_wang'
 
 if __name__ == '__main__':
-    ad_start()
+    ad_auto()
 
-    png_file = screen_shot(png_name)
-    img = cv2.imread(png_file, 0)
+    # png_file = screen_shot(png_name)
+    # img = cv2.imread(png_file, 0)
+    # click = img[115:215, 940:1040]
+    # cv2.imwrite('top_right_close_template2.png', click)
+    # cv2.imshow('click', click)
+    # cv2.waitKey(0)
