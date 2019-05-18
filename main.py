@@ -60,8 +60,11 @@ def ad_close():
 
     top_right_close_pos2 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
     top_right_close_template2 = './screenshot/top_right_close_template2.png'
-
     ad_close_template(img, top_right_close_pos2, top_right_close_template2)
+
+    top_right_close_pos3 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
+    top_right_close_template3 = './screenshot/top_right_close_template3.png'
+    ad_close_template(img, top_right_close_pos3, top_right_close_template3)
 
 
 # 根据模板关闭广告
@@ -92,10 +95,10 @@ png_name = 'liao_li_wang'
 
 if __name__ == '__main__':
     ad_auto()
-
+    #
     # png_file = screen_shot(png_name)
     # img = cv2.imread(png_file, 0)
     # click = img[115:215, 940:1040]
-    # cv2.imwrite('top_right_close_template2.png', click)
+    # cv2.imwrite('./screenshot/top_right_close_template3.png', click)
     # cv2.imshow('click', click)
     # cv2.waitKey(0)
