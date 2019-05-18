@@ -31,6 +31,7 @@ def screen_shot(png_name):
     return './screenshot/{name}.png'.format(name=png_name)
 
 
+# 点击观看广告
 def ad_start():
     png_file = screen_shot(png_name)
     img = cv2.imread(png_file, 0)
@@ -46,6 +47,7 @@ def ad_start():
         tap_random(590, 1450, 960, 1520)
 
 
+# 关闭广告
 def ad_close():
     png_file = screen_shot(png_name)
     img = cv2.imread(png_file, 0)
@@ -60,6 +62,7 @@ def ad_close():
     ad_close_template(img, top_right_close_pos2, top_right_close_template2)
 
 
+# 根据模板关闭广告
 def ad_close_template(img, close_pos, close_template):
     threshold = 0.85
     close_template = cv2.imread(close_template, 0)
@@ -73,6 +76,7 @@ def ad_close_template(img, close_pos, close_template):
         tap_random(270, 585, 270 * 3, 585 * 3)
 
 
+# 自动看广告
 def ad_auto():
     while True:
         ad_start()
