@@ -35,7 +35,7 @@ def screen_shot(png_name):
 def ad_start():
     png_file = screen_shot(png_name)
     img = cv2.imread(png_file, 0)
-    threshold = 0.99
+    threshold = 0.975
     ad_pos = {'x0': 945, 'y0': 255, 'x1': 1045, 'y1': 345}
     ad_template = cv2.imread('./screenshot/ad_template.png', 0)
 
@@ -53,18 +53,25 @@ def ad_start():
 def ad_close():
     png_file = screen_shot(png_name)
     img = cv2.imread(png_file, 0)
-
-    top_right_close_pos1 = {'x0': 950, 'y0': 110, 'x1': 1050, 'y1': 210}
+    is_close = 0
+    # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 100, maxRadius=50)
+    # for circle in circles[0, :]:
+    #     print(circle)
+    #     tap(circle[0], circle[1])
+    #
+    top_right_close_pos1 = {'x0': 955, 'y0': 115, 'x1': 1040, 'y1': 200}
     top_right_close_template1 = './screenshot/top_right_close_template1.png'
-    ad_close_template(img, top_right_close_pos1, top_right_close_template1)
+    is_close += ad_close_template(img, top_right_close_pos1, top_right_close_template1)
 
     top_right_close_pos2 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
     top_right_close_template2 = './screenshot/top_right_close_template2.png'
-    ad_close_template(img, top_right_close_pos2, top_right_close_template2)
+    is_close += ad_close_template(img, top_right_close_pos2, top_right_close_template2)
 
-    top_right_close_pos3 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
+    top_right_close_pos3 = {'x0': 950, 'y0': 125, 'x1': 1030, 'y1': 205}
     top_right_close_template3 = './screenshot/top_right_close_template3.png'
-    ad_close_template(img, top_right_close_pos3, top_right_close_template3)
+    is_close += ad_close_template(img, top_right_close_pos3, top_right_close_template3)
+
+    return is_close
 
 
 # 根据模板关闭广告
@@ -81,13 +88,30 @@ def ad_close_template(img, close_pos, close_template_name):
         tap_random(close_pos['x0'] + 20, close_pos['y0'] + 20, close_pos['x1'] - 20, close_pos['y1'] - 20)
         time.sleep(2)
         tap_random(270, 585, 270 * 3, 585 * 3)
+        return 1
+
+    return 0
+
+
+def force_close():
+    tap(1000, 160)
+    time.sleep(2)
+    tap_random(270, 585, 270 * 3, 585 * 3)
 
 
 # 自动看广告
 def ad_auto():
+    check_cnt = 0
     while True:
         ad_start()
-        ad_close()
+        if not ad_close():
+            check_cnt += 1
+        else:
+            check_cnt = 0
+        if check_cnt > 20:
+            force_close()
+            check_cnt = 0
+            print('force')
         time.sleep(2)
 
 
@@ -95,10 +119,17 @@ png_name = 'liao_li_wang'
 
 if __name__ == '__main__':
     ad_auto()
-    #
+
     # png_file = screen_shot(png_name)
     # img = cv2.imread(png_file, 0)
-    # click = img[115:215, 940:1040]
-    # cv2.imwrite('./screenshot/top_right_close_template3.png', click)
-    # cv2.imshow('click', click)
+    # img = img[120:210, 945:1035]
+    # cv2.imwrite('./screenshot/top_right_close_template4.png', img)
+    # img = img[100:250, 900:1080]
+    # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 1, maxRadius=50)
+    # print(circles)
+    # for i in circles[0, :]:
+    #     print(i)
+    #     cv2.circle(img, (i[0], i[1]), i[2], (0, 255, 0), 2)
+    #     cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 3)
+    # cv2.imshow('click', img)
     # cv2.waitKey(0)
