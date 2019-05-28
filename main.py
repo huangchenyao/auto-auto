@@ -1,57 +1,32 @@
 # -*- coding:utf-8 -*-
-import os
 import cv2
-import random
 import time
+from Adb import Adb
 
-
-# 模拟点按
-def tap(x0, y0):
-    tap_cmd = 'adb shell input tap {x0} {y0}'.format(
-        x0=x0,
-        y0=y0
-    )
-    print(tap_cmd)
-    os.system(tap_cmd)
-
-
-# 模拟点按
-def tap_random(x0, y0, x1, y1):
-    x = random.randint(x0, x1)
-    y = random.randint(y0, y1)
-    tap(x, y)
-
-
-# 截图
-def screen_shot(png_name):
-    screen_cap_cmd = 'adb shell screencap -p /sdcard/{name}.png'.format(name=png_name)
-    os.system(screen_cap_cmd)
-    pull_cmd = 'adb pull /sdcard/{name}.png ./screenshot'.format(name=png_name)
-    os.system(pull_cmd)
-    return './screenshot/{name}.png'.format(name=png_name)
+path = './screenshot'
 
 
 # 点击观看广告
 def ad_start():
-    png_file = screen_shot(png_name)
+    png_file = Adb.screen_shot(png_name, path)
     img = cv2.imread(png_file, 0)
     threshold = 0.975
     ad_pos = {'x0': 945, 'y0': 255, 'x1': 1045, 'y1': 345}
-    ad_template = cv2.imread('./screenshot/ad_template.png', 0)
+    ad_template = cv2.imread(path + '/ad_template.png', 0)
 
     ad = img[ad_pos['y0']:ad_pos['y1'], ad_pos['x0']:ad_pos['x1']]
     match_rate = cv2.matchTemplate(ad, ad_template, cv2.TM_CCOEFF_NORMED)
     # print('start:')
     # print(match_rate)
     if (match_rate > threshold).any():
-        tap_random(ad_pos['x0'] + 20, ad_pos['y0'] + 20, ad_pos['x1'] - 20, ad_pos['y1'] - 20)
+        Adb.tap_random(ad_pos['x0'] + 20, ad_pos['y0'] + 20, ad_pos['x1'] - 20, ad_pos['y1'] - 20)
         time.sleep(1)
-        tap_random(590, 1450, 960, 1520)
+        Adb.tap_random(590, 1450, 960, 1520)
 
 
 # 关闭广告
 def ad_close():
-    png_file = screen_shot(png_name)
+    png_file = Adb.screen_shot(png_name, path)
     img = cv2.imread(png_file, 0)
     is_close = 0
     # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 100, maxRadius=50)
@@ -60,15 +35,15 @@ def ad_close():
     #     tap(circle[0], circle[1])
     #
     top_right_close_pos1 = {'x0': 955, 'y0': 115, 'x1': 1040, 'y1': 200}
-    top_right_close_template1 = './screenshot/top_right_close_template1.png'
+    top_right_close_template1 = path + '/top_right_close_template1.png'
     is_close += ad_close_template(img, top_right_close_pos1, top_right_close_template1)
 
     top_right_close_pos2 = {'x0': 940, 'y0': 115, 'x1': 1040, 'y1': 215}
-    top_right_close_template2 = './screenshot/top_right_close_template2.png'
+    top_right_close_template2 = path + '/top_right_close_template2.png'
     is_close += ad_close_template(img, top_right_close_pos2, top_right_close_template2)
 
     top_right_close_pos3 = {'x0': 950, 'y0': 125, 'x1': 1030, 'y1': 205}
-    top_right_close_template3 = './screenshot/top_right_close_template3.png'
+    top_right_close_template3 = path + '/top_right_close_template3.png'
     is_close += ad_close_template(img, top_right_close_pos3, top_right_close_template3)
 
     return is_close
@@ -85,18 +60,18 @@ def ad_close_template(img, close_pos, close_template_name):
     # print(close_template_name)
     # print(match_rate)
     if (match_rate > threshold).any():
-        tap_random(close_pos['x0'] + 20, close_pos['y0'] + 20, close_pos['x1'] - 20, close_pos['y1'] - 20)
+        Adb.tap_random(close_pos['x0'] + 20, close_pos['y0'] + 20, close_pos['x1'] - 20, close_pos['y1'] - 20)
         time.sleep(2)
-        tap_random(270, 585, 270 * 3, 585 * 3)
+        Adb.tap_random(270, 585, 270 * 3, 585 * 3)
         return 1
 
     return 0
 
 
 def force_close():
-    tap(1000, 160)
+    Adb.tap(1000, 160)
     time.sleep(2)
-    tap_random(270, 585, 270 * 3, 585 * 3)
+    Adb.tap_random(270, 585, 270 * 3, 585 * 3)
 
 
 # 自动看广告
