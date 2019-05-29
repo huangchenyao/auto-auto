@@ -46,6 +46,10 @@ def ad_close():
     top_right_close_template3 = path + '/top_right_close_template3.png'
     is_close += ad_close_template(img, top_right_close_pos3, top_right_close_template3)
 
+    top_left_close_pos1 = {'x0': 60, 'y0': 120, 'x1': 150, 'y1': 210}
+    top_left_close_template1 = path + '/top_left_close_template1.png'
+    is_close += ad_close_template(img, top_left_close_pos1, top_left_close_template1)
+
     return is_close
 
 
@@ -95,11 +99,10 @@ png_name = 'liao_li_wang'
 if __name__ == '__main__':
     ad_auto()
 
-    # png_file = screen_shot(png_name)
+    # png_file = Adb.screen_shot(png_name, path)
     # img = cv2.imread(png_file, 0)
-    # img = img[120:210, 945:1035]
-    # cv2.imwrite('./screenshot/top_right_close_template4.png', img)
-    # img = img[100:250, 900:1080]
+    # img = img[120:210, 60:150]
+    # cv2.imwrite('./screenshot/top_left_close_template2.png', img)
     # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 1, maxRadius=50)
     # print(circles)
     # for i in circles[0, :]:
