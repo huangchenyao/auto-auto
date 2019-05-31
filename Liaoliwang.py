@@ -2,6 +2,7 @@
 import cv2
 import time
 from Adb import Adb
+import numpy as np
 
 
 class Liaoliwang:
@@ -103,5 +104,36 @@ class Liaoliwang:
             time.sleep(2)
 
     # 自动送酱油
+    def __page_oil_auto(self):
+        png_file = Adb.screen_shot(self.__png_name, self.__path)
+        img = cv2.imread(png_file, 0)
+        oil_template = cv2.imread('./screenshot/oil_template.png', 0)
+        h, w = oil_template.shape[:2]
+
+        res = cv2.matchTemplate(img, oil_template, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.9
+        pts = [(0, 0)]
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            like_cnt = 0
+            for _pt in pts:
+                if _pt[0] - 5 <= pt[0] <= _pt[0] + 5 and _pt[1] - 5 <= pt[1] <= _pt[1] + 5:
+                    like_cnt += 1
+            if like_cnt == 0:
+                pts.append(pt)
+
+        del(pts[0])
+        print(pts)
+        for pt in pts:
+            Adb.tap(pt[0] + w / 2, pt[1] + h / 2)
+            right_bottom = (pt[0] + w, pt[1] + h)
+            cv2.rectangle(img, pt, right_bottom, (0, 0, 255), 2)
+
+        cv2.imwrite('./screenshot/tmp.png', img)
+
     def oil_auto(self):
-        pass
+        for i in range(25):
+            Adb.swipe(540, 2000, 540, 1600, 200)
+            time.sleep(2.5)
+            self.__page_oil_auto()
+            time.sleep(2.5)
