@@ -55,6 +55,10 @@ class Liaoliwang:
         top_right_close_template4 = self.__path + '/top_right_close_template4.png'
         is_close += self.__ad_close_template(img, top_right_close_pos4, top_right_close_template4)
 
+        top_right_close_pos5 = {'x0': 945, 'y0': 120, 'x1': 1035, 'y1': 210}
+        top_right_close_template5 = self.__path + '/top_right_close_template5.png'
+        is_close += self.__ad_close_template(img, top_right_close_pos5, top_right_close_template5)
+
         top_left_close_pos1 = {'x0': 60, 'y0': 120, 'x1': 150, 'y1': 210}
         top_left_close_template1 = self.__path + '/top_left_close_template1.png'
         is_close += self.__ad_close_template(img, top_left_close_pos1, top_left_close_template1)
