@@ -15,12 +15,25 @@ class Adb:
         print(tap_cmd)
         os.system(tap_cmd)
 
-    # 模拟点按
+    # 模拟点按（随机范围，防封）
     @staticmethod
     def tap_random(x0, y0, x1, y1):
         x = random.randint(x0, x1)
         y = random.randint(y0, y1)
         Adb.tap(x, y)
+
+    # 模拟滑动
+    @staticmethod
+    def swipe(x0, y0, x1, y1, delay):
+        cmd = 'adb shell input swipe {x0} {y0} {x1} {y1} {delay}'.format(
+            x0=x0,
+            y0=y0,
+            x1=x1,
+            y1=y1,
+            delay=delay
+        )
+        print(cmd)
+        os.system(cmd)
 
     # 截图
     @staticmethod
