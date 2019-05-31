@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import cv2
+from Adb import Adb
 from Liaoliwang import Liaoliwang
 
 if __name__ == '__main__':
@@ -10,8 +11,8 @@ if __name__ == '__main__':
 
     # png_file = Adb.screen_shot(png_name, path)
     # img = cv2.imread(png_file, 0)
-    # img = img[120:210, 60:150]
-    # cv2.imwrite('./screenshot/top_left_close_template2.png', img)
+    # img = img[120:210, 945:1035]
+    # cv2.imwrite('./screenshot/top_right_close_template5.png', img)
     # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 1, maxRadius=50)
     # print(circles)
     # for i in circles[0, :]:
