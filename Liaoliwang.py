@@ -132,8 +132,8 @@ class Liaoliwang:
         cv2.imwrite('./screenshot/tmp.png', img)
 
     def oil_auto(self):
-        for i in range(25):
-            Adb.swipe(540, 2000, 540, 1600, 200)
-            time.sleep(2.5)
+        for i in range(12):
             self.__page_oil_auto()
+            time.sleep(2.5)
+            Adb.swipe(540, 2100, 540, 1600, 200)
             time.sleep(2.5)
