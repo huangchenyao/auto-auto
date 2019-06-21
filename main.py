@@ -8,7 +8,6 @@ if __name__ == '__main__':
     path = './screenshot'
     png_name = 'liao_li_wang'
 
-    # Liaoliwang(path, png_name).oil_auto()
     Liaoliwang(path, png_name).ad_auto()
 
     # png_file = Adb.screen_shot(png_name, path)
