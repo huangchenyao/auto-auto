@@ -103,6 +103,7 @@ class Liaoliwang:
                 check_cnt = 0
                 print('force')
             time.sleep(2)
+
     #
     # # 自动送酱油
     # def __page_oil_auto(self):
@@ -136,3 +137,48 @@ class Liaoliwang:
     #         time.sleep(2.5)
     #         Adb.swipe(540, 2100, 540, 1600, 200)
     #         time.sleep(2.5)
+
+    def find_hanhan_pos(self):
+        png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
+        img = cv2.imread(png_file, 0)
+        # img = cv2.imread('./screenshot/tmp.png', 0)
+
+        hanhan = cv2.imread('./template/adventure/hanhan.png', 0)
+        hanhan_flip = cv2.flip(hanhan, 1, dst=None)  # 水平镜像
+
+        threshold = 0.75
+        w, h = hanhan.shape[::-1]
+        pts = [(0, 0)]
+
+        res = cv2.matchTemplate(img, hanhan, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            like_cnt = 0
+            for _pt in pts:
+                if _pt[0] - 5 <= pt[0] <= _pt[0] + 5 and _pt[1] - 5 <= pt[1] <= _pt[1] + 5:
+                    like_cnt += 1
+            if like_cnt == 0:
+                pts.append(pt)
+        res = cv2.matchTemplate(img, hanhan_flip, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            like_cnt = 0
+            for _pt in pts:
+                if _pt[0] - 5 <= pt[0] <= _pt[0] + 5 and _pt[1] - 5 <= pt[1] <= _pt[1] + 5:
+                    like_cnt += 1
+            if like_cnt == 0:
+                pts.append(pt)
+
+        del (pts[0])
+        pts_mid = []
+        for pt in pts:
+            # right_bottom = (pt[0] + w, pt[1] + h)
+            # cv2.rectangle(img, pt, right_bottom, (0, 0, 255), 2)
+            pts_mid.append((pt[0] + w / 2, pt[1] + h / 2))
+
+        # cv2.imwrite('./screenshot/tmp2.png', img)
+
+        return pts_mid
+
+    def find_reachable_pos(self):
+        pass
