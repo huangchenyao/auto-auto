@@ -36,11 +36,7 @@ class Liaoliwang:
         png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
         img = cv2.imread(png_file, 0)
         is_close = 0
-        # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 100, maxRadius=50)
-        # for circle in circles[0, :]:
-        #     print(circle)
-        #     tap(circle[0], circle[1])
-        #
+
         top_right_close_pos1 = {'x0': 955, 'y0': 115, 'x1': 1040, 'y1': 200}
         top_right_close_template1 = self.__ad_template_path + '/top_right_close_template1.png'
         is_close += self.__ad_close_template(img, top_right_close_pos1, top_right_close_template1)
@@ -104,18 +100,13 @@ class Liaoliwang:
                 print('force')
             time.sleep(2)
 
-    def __find_hanhan_pos(self, img):
-        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        hanhan = cv2.imread('./template/adventure/hanhan.png', 0)
-        hanhan_flip = cv2.flip(hanhan, 1, dst=None)  # 水平镜像
-
-        threshold = 0.75
-        w, h = hanhan.shape[::-1]
+    # 根据模板找对应位置
+    def __find_pos_by_template(self, img, template, threshold):
+        w, h = template.shape[::-1]
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(res >= threshold)
         pts = [(0, 0)]
 
-        res = cv2.matchTemplate(img_grey, hanhan, cv2.TM_CCOEFF_NORMED)
-        loc = np.where(res >= threshold)
         for pt in zip(*loc[::-1]):
             like_cnt = 0
             for _pt in pts:
@@ -123,23 +114,48 @@ class Liaoliwang:
                     like_cnt += 1
             if like_cnt == 0:
                 pts.append(pt)
-        res = cv2.matchTemplate(img_grey, hanhan_flip, cv2.TM_CCOEFF_NORMED)
-        loc = np.where(res >= threshold)
-        for pt in zip(*loc[::-1]):
-            like_cnt = 0
-            for _pt in pts:
-                if _pt[0] - 5 <= pt[0] <= _pt[0] + 5 and _pt[1] - 5 <= pt[1] <= _pt[1] + 5:
-                    like_cnt += 1
-            if like_cnt == 0:
-                pts.append(pt)
-
         del (pts[0])
-        pts_mid = []
+
+        pos = []
         for pt in pts:
-            pts_mid.append((pt[0] + w / 2, pt[1] + h / 2))
+            pos.append((pt[0] + w / 2, pt[1] + h / 2))
+        return pos
 
-        return pts_mid
+    # 找宝箱和骷髅头的位置
+    def __find_treasure_pos(self, img):
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        bone = cv2.imread('./template/adventure/bone.png', 0)
+        box = cv2.imread('./template/adventure/box.png', 0)
+        threshold = 0.75
+        pos = []
 
+        pos.extend(self.__find_pos_by_template(img_grey, bone, threshold))
+        pos.extend(self.__find_pos_by_template(img_grey, box, threshold))
+        return pos
+
+    # 找憨憨的位置
+    def __find_hanhan_pos(self, img):
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        hanhan = cv2.imread('./template/adventure/hanhan.png', 0)
+        hanhan_flip = cv2.flip(hanhan, 1, dst=None)  # 水平镜像
+        threshold = 0.75
+        pos = []
+
+        pos.extend(self.__find_pos_by_template(img_grey, hanhan, threshold))
+        pos.extend(self.__find_pos_by_template(img_grey, hanhan_flip, threshold))
+        return pos
+
+    # 图上没有憨憨，就找侧边的憨憨
+    def __find_side_hanhan_pos(self, img):
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        circles = cv2.HoughCircles(img_grey, cv2.HOUGH_GRADIENT, 1, 20,
+                                   param1=50, param2=30, minRadius=30, maxRadius=35)
+        pos = []
+        for i in circles[0, :]:
+            pos.append((int(i[0]), int(i[1])))
+        return pos
+
+    # 找车车可以到达的位置
     def __find_reachable_pos(self, img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower = np.array([35, 160, 160])
@@ -159,28 +175,23 @@ class Liaoliwang:
                 pos.append(center)
         return pos
 
-    def __find_side_hanhan_pos(self, img):
-        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        circles = cv2.HoughCircles(img_grey, cv2.HOUGH_GRADIENT, 1, 20,
-                                   param1=50, param2=30, minRadius=30, maxRadius=35)
-        pos = []
-        for i in circles[0, :]:
-            pos.append((int(i[0]), int(i[1])))
-        return pos
-
+    # 车车走下一步
     def __adventure_one_step(self):
         png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
         img = cv2.imread(png_file)
 
-        hanhan_pos = self.__find_hanhan_pos(img)
-        if len(hanhan_pos) == 0:
-            hanhan_pos = self.__find_side_hanhan_pos(img)
+        pos = self.__find_treasure_pos(img)
+        if len(pos) == 0:
+            pos = self.__find_hanhan_pos(img)
+        if len(pos) == 0:
+            pos = self.__find_side_hanhan_pos(img)
+
         reachable_pos = self.__find_reachable_pos(img)
 
         near_pos = (0, 0)
         min = float('inf')
         for i in reachable_pos:
-            dist = (i[0] - hanhan_pos[0][0]) ** 2 + (i[1] - hanhan_pos[0][1]) ** 2
+            dist = (i[0] - pos[0][0]) ** 2 + (i[1] - pos[0][1]) ** 2
             if dist < min:
                 min = dist
                 near_pos = i

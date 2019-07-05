@@ -8,14 +8,12 @@ if __name__ == '__main__':
     path = './screenshot'
     png_name = 'liao_li_wang'
 
-    # Liaoliwang(path, png_name).ad_auto()
-    Liaoliwang(path, png_name).adventure_auto()
-    # png_file = Adb.screen_shot(png_name, path)
-    # img = cv2.imread(png_file, 0)
-    # img = img[1570:1620, 780:830]
+    Liaoliwang(path, png_name).ad_auto()
+    # Liaoliwang(path, png_name).adventure_auto()
+
+    # img = cv2.imread('./screenshot/tmp.png', 0)
     #
-    #
-    # img = cv2.imread('./screenshot/tmp.png')
+    # treasure = img[1275:1330, 902:967]
     # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     #
     # circles = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, 1, 20,
@@ -23,5 +21,5 @@ if __name__ == '__main__':
     #
     # for i in circles[0, :]:
     #     print((int(i[0]), int(i[1])))
-    #
-    # cv2.imwrite('./screenshot/tmp1.png', img)
+
+    # cv2.imwrite('./screenshot/box.png', treasure)
