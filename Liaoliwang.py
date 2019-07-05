@@ -104,44 +104,8 @@ class Liaoliwang:
                 print('force')
             time.sleep(2)
 
-    #
-    # # 自动送酱油
-    # def __page_oil_auto(self):
-    #     png_file = Adb.screen_shot(self.__png_name, self.__path)
-    #     img = cv2.imread(png_file, 0)
-    #     oil_template = cv2.imread('./screenshot/oil_template.png', 0)
-    #     h, w = oil_template.shape[:2]
-    #
-    #     res = cv2.matchTemplate(img, oil_template, cv2.TM_CCOEFF_NORMED)
-    #     threshold = 0.9
-    #     pts = [(0, 0)]
-    #     loc = np.where(res >= threshold)
-    #     for pt in zip(*loc[::-1]):
-    #         like_cnt = 0
-    #         for _pt in pts:
-    #             if _pt[0] - 5 <= pt[0] <= _pt[0] + 5 and _pt[1] - 5 <= pt[1] <= _pt[1] + 5:
-    #                 like_cnt += 1
-    #         if like_cnt == 0:
-    #             pts.append(pt)
-    #
-    #     del (pts[0])
-    #     # print(pts)
-    #     for pt in pts:
-    #         Adb.tap(pt[0] + w / 2, pt[1] + h / 2)
-    #         right_bottom = (pt[0] + w, pt[1] + h)
-    #         cv2.rectangle(img, pt, right_bottom, (0, 0, 255), 2)
-    #
-    # def oil_auto(self):
-    #     for i in range(12):
-    #         self.__page_oil_auto()
-    #         time.sleep(2.5)
-    #         Adb.swipe(540, 2100, 540, 1600, 200)
-    #         time.sleep(2.5)
-
-    def find_hanhan_pos(self):
-        png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
-        img = cv2.imread(png_file, 0)
-        # img = cv2.imread('./screenshot/tmp.png', 0)
+    def __find_hanhan_pos(self, img):
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         hanhan = cv2.imread('./template/adventure/hanhan.png', 0)
         hanhan_flip = cv2.flip(hanhan, 1, dst=None)  # 水平镜像
@@ -150,7 +114,7 @@ class Liaoliwang:
         w, h = hanhan.shape[::-1]
         pts = [(0, 0)]
 
-        res = cv2.matchTemplate(img, hanhan, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(img_grey, hanhan, cv2.TM_CCOEFF_NORMED)
         loc = np.where(res >= threshold)
         for pt in zip(*loc[::-1]):
             like_cnt = 0
@@ -159,7 +123,7 @@ class Liaoliwang:
                     like_cnt += 1
             if like_cnt == 0:
                 pts.append(pt)
-        res = cv2.matchTemplate(img, hanhan_flip, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(img_grey, hanhan_flip, cv2.TM_CCOEFF_NORMED)
         loc = np.where(res >= threshold)
         for pt in zip(*loc[::-1]):
             like_cnt = 0
@@ -172,13 +136,56 @@ class Liaoliwang:
         del (pts[0])
         pts_mid = []
         for pt in pts:
-            # right_bottom = (pt[0] + w, pt[1] + h)
-            # cv2.rectangle(img, pt, right_bottom, (0, 0, 255), 2)
             pts_mid.append((pt[0] + w / 2, pt[1] + h / 2))
-
-        # cv2.imwrite('./screenshot/tmp2.png', img)
 
         return pts_mid
 
-    def find_reachable_pos(self):
-        pass
+    def __find_reachable_pos(self, img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower = np.array([35, 160, 160])
+        upper = np.array([45, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        res = cv2.bitwise_and(img, img, mask=mask)
+        res_gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+
+        ret, thresh = cv2.threshold(res_gray, 127, 255, 0)
+        cnts, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        pos = []
+        for cnt in cnts:
+            (x, y), radius = cv2.minEnclosingCircle(cnt)
+            center = (int(x), int(y))
+            radius = int(radius)
+            if 15 < radius < 20:
+                pos.append(center)
+        return pos
+
+    def __find_side_hanhan_pos(self, img):
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        circles = cv2.HoughCircles(img_grey, cv2.HOUGH_GRADIENT, 1, 20,
+                                   param1=50, param2=30, minRadius=30, maxRadius=35)
+        pos = []
+        for i in circles[0, :]:
+            pos.append((int(i[0]), int(i[1])))
+        return pos
+
+    def __adventure_one_step(self):
+        png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
+        img = cv2.imread(png_file)
+
+        hanhan_pos = self.__find_hanhan_pos(img)
+        if len(hanhan_pos) == 0:
+            hanhan_pos = self.__find_side_hanhan_pos(img)
+        reachable_pos = self.__find_reachable_pos(img)
+
+        near_pos = (0, 0)
+        min = float('inf')
+        for i in reachable_pos:
+            dist = (i[0] - hanhan_pos[0][0]) ** 2 + (i[1] - hanhan_pos[0][1]) ** 2
+            if dist < min:
+                min = dist
+                near_pos = i
+        Adb.tap(near_pos[0], near_pos[1])
+
+    def adventure_auto(self):
+        for i in range(15):
+            self.__adventure_one_step()
