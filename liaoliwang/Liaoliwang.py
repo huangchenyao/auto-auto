@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 import cv2
 import time
-from Adb import Adb
+from tools.Adb import Adb
 import numpy as np
+from tools.Common import Common
 
 
-class Liaoliwang:
+class Liaoliwang(object):
     __screenshot_path = ''
     __png_name = ''
     __ad_template_path = './template/ad'
@@ -151,16 +152,18 @@ class Liaoliwang:
         circles = cv2.HoughCircles(img_grey, cv2.HOUGH_GRADIENT, 1, 20,
                                    param1=50, param2=30, minRadius=30, maxRadius=35)
         pos = []
-        for i in circles[0, :]:
-            pos.append((int(i[0]), int(i[1])))
+        if circles is not None:
+            for i in circles[0, :]:
+                pos.append((int(i[0]), int(i[1])))
         return pos
 
     # 找车车可以到达的位置
     def __find_reachable_pos(self, img):
+        return self.__find_circle_center(img, [35, 160, 160], [55, 255, 255], 15, 20)
+
+    def __find_circle_center(self, img, lower, upper, radius_lower, radius_upper):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower = np.array([35, 160, 160])
-        upper = np.array([45, 255, 255])
-        mask = cv2.inRange(hsv, lower, upper)
+        mask = cv2.inRange(hsv, np.array(lower), np.array(upper))
         res = cv2.bitwise_and(img, img, mask=mask)
         res_gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
 
@@ -171,7 +174,7 @@ class Liaoliwang:
             (x, y), radius = cv2.minEnclosingCircle(cnt)
             center = (int(x), int(y))
             radius = int(radius)
-            if 15 < radius < 20:
+            if radius_lower < radius < radius_upper:
                 pos.append(center)
         return pos
 
@@ -185,18 +188,61 @@ class Liaoliwang:
             pos = self.__find_hanhan_pos(img)
         if len(pos) == 0:
             pos = self.__find_side_hanhan_pos(img)
+        if len(pos) == 0:
+            return False
 
         reachable_pos = self.__find_reachable_pos(img)
-
         near_pos = (0, 0)
-        min = float('inf')
+        min_pos = float('inf')
         for i in reachable_pos:
             dist = (i[0] - pos[0][0]) ** 2 + (i[1] - pos[0][1]) ** 2
-            if dist < min:
-                min = dist
+            if dist < min_pos:
+                min_pos = dist
                 near_pos = i
         Adb.tap(near_pos[0], near_pos[1])
+        return True
+
+    def __hanhan_shape(self):
+        Adb.tap_random(900, 300, 1000, 400)
+        png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
+        img = cv2.imread(png_file)
+        pos = self.__find_circle_center(img, [35, 160, 160], [55, 255, 255], 20, 30)
+
+        similar_range = 5
+        x_list = np.array(pos)[:, 0].tolist()
+        y_list = np.array(pos)[:, 1].tolist()
+        Common.remove_similar(x_list, similar_range)
+        Common.remove_similar(y_list, similar_range)
+        x_list.sort()
+        y_list.sort()
+
+        x_list.insert(0, 0)
+        shape = [x_list]
+        for y in y_list:
+            tmp = [y]
+            for i in range(len(x_list) - 1):
+                tmp.append(0)
+            shape.append(tmp)
+        for p in pos:
+            x_pos = y_pos = -1
+            for i in range(len(shape[0])):
+                if Common.similar(shape[0][i], p[0], similar_range):
+                    x_pos = i
+                    break
+            for i in range(len(shape)):
+                if Common.similar(shape[i][0], p[1], similar_range):
+                    y_pos = i
+                    break
+            if x_pos > 0 and y_pos > 0:
+                shape[y_pos][x_pos] = 1
+
+        print(shape)
+        return shape
 
     def adventure_auto(self):
-        for i in range(15):
-            self.__adventure_one_step()
+        # 1 遇怪
+        while self.__adventure_one_step():
+            pass
+        # 2 抓怪
+        self.__hanhan_shape()
+        # 3 结束，继续

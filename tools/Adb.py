@@ -4,7 +4,7 @@ import os
 import random
 
 
-class Adb:
+class Adb(object):
     # 模拟点按
     @staticmethod
     def tap(x0, y0):
