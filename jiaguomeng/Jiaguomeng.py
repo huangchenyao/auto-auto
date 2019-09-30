@@ -2,14 +2,16 @@
 import cv2
 import time
 from tools.Adb import Adb
-import numpy as np
 
 
 class Jiaguomeng(object):
-    __screenshot_path = ''
-    __png_name = ''
-    __template_path = './template/jiaguomeng'
-    __pos = {
+    __zoom_x: float = 1
+    __zoom_y: float = 1
+
+    __screenshot_path: str = ''
+    __png_name: str = ''
+    __template_path: str = './template/jiaguomeng'
+    __pos: dict = {
         'gangtiechang': [300, 950, 1],  # 钢铁厂
         'lingjianchang': [550, 850, 1],  # 零件厂
         'qiejixie': [800, 750, 1],  # 企鹅机械
@@ -20,9 +22,12 @@ class Jiaguomeng(object):
         'pingfang': [550, 1350, 0],  # 平房
         'gangjiegoufang': [800, 1250, 1],  # 钢结构房
     }
-    __houses = []
+    __houses: list = []
 
-    def __init__(self, screenshot_path, png_name):
+    def __init__(self, screenshot_path: str, png_name: str, screens_x: float = 1080.0, screens_y: int = 2340):
+        self.__zoom_x = screens_x / 1080.0
+        self.__zoom_x = screens_y / 2034.0
+
         self.__screenshot_path = screenshot_path
         self.__png_name = png_name
         for k in self.__pos:
@@ -45,8 +50,8 @@ class Jiaguomeng(object):
                            self.__pos[k][1] + 25)
             time.sleep(0.25)
 
-    def auto_train(self):
-        template = True
+    def auto_train(self) -> bool:
+        template = False
         if template:
             # img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
             img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
@@ -54,17 +59,17 @@ class Jiaguomeng(object):
             cv2.imwrite('./template/jiaguomeng/lingjianchang.png', img)
             return
 
-        png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
+        png_file: str = Adb.screen_shot(self.__png_name, self.__screenshot_path)
         img = cv2.imread(png_file, 0)
         for house in self.__houses:
-            center = self.__find_center(img, house)
+            center: tuple = self.__find_center(img, house)
             if center:
                 Adb.swipe(center[0], center[1], self.__pos[house][0], self.__pos[house][1], 250)
                 return True
         return False
 
     def __find_center(self, img, template_name):
-        center = ()
+        center: tuple = ()
         template = cv2.imread('./template/jiaguomeng/' + template_name + '.png', 0)
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
