@@ -53,10 +53,10 @@ class Jiaguomeng(object):
     def auto_train(self) -> bool:
         template = False
         if template:
-            img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
+            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
             # img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
-            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1010] # 3
-            cv2.imwrite('./template/jiaguomeng/pingfang.png', img)
+            img = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1010] # 3
+            cv2.imwrite('./template/jiaguomeng/lingjianchang.png', img)
             return
 
         png_file: str = Adb.screen_shot(self.__png_name, self.__screenshot_path)
@@ -75,6 +75,6 @@ class Jiaguomeng(object):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         print('%s: %.2f' % (template_name, max_val))
         print(max_loc)
-        if max_val > 0.8:
+        if max_val > 0.75:
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center
