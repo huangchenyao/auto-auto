@@ -10,8 +10,8 @@ class Jiaguomeng(object):
     __png_name = ''
     __template_path = './template/jiaguomeng'
     __pos = {
-        'gangtiechang': [300, 950, 1],  # 钢铁厂0
-        'lingjianchang': [550, 850, 0],  # 零件厂0
+        'gangtiechang': [300, 950, 1],  # 钢铁厂
+        'lingjianchang': [550, 850, 1],  # 零件厂
         'qiejixie': [800, 750, 1],  # 企鹅机械
         'bianlidian': [300, 1200, 1],  # 便利店
         'wujindian': [550, 1100, 1],  # 五金店
@@ -41,16 +41,17 @@ class Jiaguomeng(object):
         for k in self.__pos:
             Adb.tap_random(self.__pos[k][0] - 25,
                            self.__pos[k][1] - 25,
+                           self.__pos[k][0] + 25,
                            self.__pos[k][1] + 25)
             time.sleep(0.25)
 
     def auto_train(self):
-        template = False
+        template = True
         if template:
-            img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
-            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
+            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
+            img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
             # img = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1010] # 3
-            cv2.imwrite('./template/jiaguomeng/juminlou.png', img)
+            cv2.imwrite('./template/jiaguomeng/lingjianchang.png', img)
             return
 
         png_file = Adb.screen_shot(self.__png_name, self.__screenshot_path)
