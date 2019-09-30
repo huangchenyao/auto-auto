@@ -19,7 +19,7 @@ class Jiaguomeng(object):
         'wujindian': [550, 1100, 1],  # 五金店
         'minshizhai': [800, 1000, 1],  # 民食斋
         'juminlou': [300, 1450, 1],  # 居民楼
-        'pingfang': [550, 1350, 0],  # 平房
+        'pingfang': [550, 1350, 1],  # 平房
         'gangjiegoufang': [800, 1250, 1],  # 钢结构房
     }
     __houses: list = []
@@ -53,10 +53,10 @@ class Jiaguomeng(object):
     def auto_train(self) -> bool:
         template = False
         if template:
-            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
-            img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
+            img = cv2.imread('./screenshot/jia_guo_meng.png')[1850:1920, 620:700]  # 1
+            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
             # img = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1010] # 3
-            cv2.imwrite('./template/jiaguomeng/lingjianchang.png', img)
+            cv2.imwrite('./template/jiaguomeng/pingfang.png', img)
             return
 
         png_file: str = Adb.screen_shot(self.__png_name, self.__screenshot_path)
@@ -73,6 +73,8 @@ class Jiaguomeng(object):
         template = cv2.imread('./template/jiaguomeng/' + template_name + '.png', 0)
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        print('%s: %.2f' % (template_name, max_val))
+        print(max_loc)
         if max_val > 0.8:
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center
