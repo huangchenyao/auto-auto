@@ -12,15 +12,15 @@ class Jiaguomeng(object):
     __png_name: str = ''
     __template_path: str = './template/jiaguomeng'
     __pos: dict = {
-        'gangtiechang': [300, 950, 1],  # 钢铁厂
+        'mucaichang': [300, 950, 1],  # 木材厂
         'lingjianchang': [550, 850, 1],  # 零件厂
-        'qiejixie': [800, 750, 1],  # 企鹅机械
+        'zaozhichang': [800, 750, 1],  # 造纸厂
         'bianlidian': [300, 1200, 1],  # 便利店
         'wujindian': [550, 1100, 1],  # 五金店
-        'minshizhai': [800, 1000, 1],  # 民食斋
+        'tushucheng': [800, 1000, 1],  # 图书城
         'juminlou': [300, 1450, 1],  # 居民楼
         'pingfang': [550, 1350, 1],  # 平房
-        'gangjiegoufang': [800, 1250, 1],  # 钢结构房
+        'muwu': [800, 1250, 1],  # 木屋
     }
     __houses: list = []
 
@@ -50,17 +50,19 @@ class Jiaguomeng(object):
                            self.__pos[k][1] + 25)
             time.sleep(0.25)
 
-    def auto_train(self) -> bool:
-        template = False
+    def auto_train(self, template=False) -> bool:
+        # template = False
         if template:
-            img = cv2.imread('./screenshot/jia_guo_meng.png')[1870:1920, 630:700]  # 1
-            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1775:1835, 780:860]  # 2
-            # img = cv2.imread('./screenshot/jia_guo_meng.png')[1700:1750, 930:1010] # 3
-            cv2.imwrite('./template/jiaguomeng/123123.png', img)
+            img1 = cv2.imread('./screenshot/jia_guo_meng.png')[1855:1905, 630:695]  # 1
+            img2 = cv2.imread('./screenshot/jia_guo_meng.png')[1780:1840, 780:860]  # 2
+            img3 = cv2.imread('./screenshot/jia_guo_meng.png')[1695:1750, 935:1005]  # 3
+            cv2.imwrite('./template/jiaguomeng/1.png', img1)
+            cv2.imwrite('./template/jiaguomeng/2.png', img2)
+            cv2.imwrite('./template/jiaguomeng/3.png', img3)
             return
 
         png_file: str = Adb.screen_shot(self.__png_name, self.__screenshot_path)
-        img = cv2.imread(png_file, 0)
+        img = cv2.imread(png_file)
         for house in self.__houses:
             center: tuple = self.__find_center(img, house)
             if center:
@@ -70,11 +72,11 @@ class Jiaguomeng(object):
 
     def __find_center(self, img, template_name):
         center: tuple = ()
-        template = cv2.imread('./template/jiaguomeng/' + template_name + '.png', 0)
+        template = cv2.imread('./template/jiaguomeng/' + template_name + '.png')
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        # print('%s: %.2f' % (template_name, max_val))
-        # print(max_loc)
-        if max_val > 0.75:
+        print('%s: %.2f' % (template_name, max_val))
+        print(max_loc)
+        if max_val >= 0.85:
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center

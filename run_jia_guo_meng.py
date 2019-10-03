@@ -5,5 +5,5 @@ if __name__ == '__main__':
     path = './screenshot'
     png_name = 'jia_guo_meng'
 
-    # Jiaguomeng(path, png_name).auto_train()
+    # Jiaguomeng(path, png_name).auto_train(True)
     Jiaguomeng(path, png_name).auto()
