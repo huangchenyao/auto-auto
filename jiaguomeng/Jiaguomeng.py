@@ -12,26 +12,23 @@ class Jiaguomeng(object):
     __png_name: str = ''
     __template_path: str = './template/jiaguomeng'
     __pos: dict = {
-        'mucaichang': [300, 950, 1],  # 木材厂
-        'lingjianchang': [550, 850, 1],  # 零件厂
-        'zaozhichang': [800, 750, 1],  # 造纸厂
-        'bianlidian': [300, 1200, 1],  # 便利店
-        'wujindian': [550, 1100, 1],  # 五金店
-        'tushucheng': [800, 1000, 1],  # 图书城
-        'juminlou': [300, 1450, 1],  # 居民楼
-        'pingfang': [550, 1350, 1],  # 平房
-        'muwu': [800, 1250, 1],  # 木屋
+        '企鹅机械': [300, 950, 3],  # 橙色
+        '零件厂': [550, 850, 2],  # 紫色
+        '电厂': [800, 750, 1],  # 蓝色
+        '商贸中心': [300, 1200, 2],  # 紫色
+        '民食斋': [550, 1100, 3],  # 橙色
+        '五金店': [800, 1000, 1],  # 蓝色
+        '复兴公馆': [300, 1450, 3],  # 橙色
+        '花园洋房': [550, 1350, 2],  # 紫色
+        '小型公寓': [800, 1250, 1],  # 蓝色
     }
     __houses: list = []
 
-    def __init__(self, screenshot_path: str, png_name: str, screens_x: float = 1080.0, screens_y: int = 2340):
-        self.__zoom_x = screens_x / 1080.0
-        self.__zoom_x = screens_y / 2034.0
-
+    def __init__(self, screenshot_path: str, png_name: str, level: int = 1):
         self.__screenshot_path = screenshot_path
         self.__png_name = png_name
         for k in self.__pos:
-            if self.__pos[k][2]:
+            if self.__pos[k][2] >= level:
                 self.__houses.append(k)
         print(self.__houses)
 
@@ -53,9 +50,9 @@ class Jiaguomeng(object):
     def auto_train(self, template=False) -> bool:
         # template = False
         if template:
-            img1 = cv2.imread('./screenshot/jia_guo_meng.png')[1855:1905, 630:695]  # 1
-            img2 = cv2.imread('./screenshot/jia_guo_meng.png')[1780:1840, 780:860]  # 2
-            img3 = cv2.imread('./screenshot/jia_guo_meng.png')[1695:1750, 935:1005]  # 3
+            img1 = cv2.imread('./screenshot/jia_guo_meng.png')[1855:1920, 625:695]  # 1
+            img2 = cv2.imread('./screenshot/jia_guo_meng.png')[1780:1830, 785:850]  # 2
+            img3 = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1005]  # 3
             cv2.imwrite('./template/jiaguomeng/1.png', img1)
             cv2.imwrite('./template/jiaguomeng/2.png', img2)
             cv2.imwrite('./template/jiaguomeng/3.png', img3)
@@ -78,5 +75,6 @@ class Jiaguomeng(object):
         print('%s: %.2f' % (template_name, max_val))
         print(max_loc)
         if max_val >= 0.85:
+            # print('%s: %.2f' % (template_name, max_val))
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center
