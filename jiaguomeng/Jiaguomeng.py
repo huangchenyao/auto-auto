@@ -34,9 +34,9 @@ class Jiaguomeng(object):
                 self.__houses.append(k)
         print(self.__houses)
 
-    def auto(self):
+    def train(self):
         while True:
-            has_train = self.auto_train()
+            has_train = self.train_template()
             if not has_train:
                 time.sleep(2)
                 self.__auto_tap()
@@ -49,7 +49,7 @@ class Jiaguomeng(object):
                            self.__pos[k][1] + 25)
             time.sleep(0.25)
 
-    def auto_train(self, template=False) -> bool:
+    def train_template(self, template=False) -> bool:
         # template = False
         if template:
             img1 = cv2.imread('./screenshot/jia_guo_meng.png')[1855:1920, 625:695]  # 1
@@ -80,3 +80,6 @@ class Jiaguomeng(object):
             # print('%s: %.2f' % (template_name, max_val))
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center
+
+    def update(self, milli):
+        Adb.swipe(900, 2150, 900, 2150, milli)
