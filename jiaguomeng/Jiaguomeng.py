@@ -26,7 +26,7 @@ class Jiaguomeng(object):
     }
     __houses: list = []
 
-    def __init__(self, screenshot_path: str, png_name: str, level: int = 1):
+    def __init__(self, screenshot_path: str = './screenshot', png_name: str = 'jia_guo_meng', level: int = 1):
         self.__screenshot_path = screenshot_path
         self.__png_name = png_name
         for k in self.__pos:
@@ -54,7 +54,7 @@ class Jiaguomeng(object):
         if template:
             img1 = cv2.imread('./screenshot/jia_guo_meng.png')[1855:1920, 625:695]  # 1
             img2 = cv2.imread('./screenshot/jia_guo_meng.png')[1770:1850, 785:850]  # 2
-            img3 = cv2.imread('./screenshot/jia_guo_meng.png')[1690:1750, 930:1005]  # 3
+            img3 = cv2.imread('./screenshot/jia_guo_meng.png')[1715:1750, 935:980]  # 3
             cv2.imwrite('./template/jiaguomeng/1.png', img1)
             cv2.imwrite('./template/jiaguomeng/2.png', img2)
             cv2.imwrite('./template/jiaguomeng/3.png', img3)
@@ -76,10 +76,43 @@ class Jiaguomeng(object):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         print('%s: %.2f' % (template_name, max_val))
         print(max_loc)
-        if max_val >= 0.85:
+        if max_val >= 0.80:
             # print('%s: %.2f' % (template_name, max_val))
             center = (max_loc[0] + 30, max_loc[1] + 30)
         return center
 
     def update(self, milli):
         Adb.swipe(900, 2150, 900, 2150, milli)
+
+    def open(self, type, times):
+        red_y = 700
+        red_x_20 = 200
+        red_x_100 = 550
+        red_x_500 = 900
+        album_x = 500
+        album_y = 1500
+
+        if type == '20':
+            x = red_x_20
+            y = red_y
+        elif type == '100':
+            x = red_x_100
+            y = red_y
+        elif type == '500':
+            x = red_x_500
+            y = red_y
+        elif type == 'album':
+            x = album_x
+            y = album_y
+        else:
+            return
+
+        for i in range(times):
+            Adb.tap_random(x - 100, y - 100, x + 100, y + 100)
+            time.sleep(0.25)
+            if i % 10 == 0:
+                Adb.screen_shot(self.__png_name, self.__screenshot_path)
+        for i in range(10):
+            Adb.tap_random(red_x_500 - 100, red_y - 100, red_x_500 + 100, red_y + 100)
+            time.sleep(0.25)
+        Adb.screen_shot(self.__png_name, self.__screenshot_path)
