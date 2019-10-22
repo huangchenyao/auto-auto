@@ -83,6 +83,7 @@ class Jiaguomeng(object):
 
     def update(self, milli):
         Adb.swipe(900, 2150, 900, 2150, milli)
+        Adb.screen_shot(self.__png_name, self.__screenshot_path)
 
     def open(self, type, times):
         red_y = 700
@@ -109,10 +110,10 @@ class Jiaguomeng(object):
 
         for i in range(times):
             Adb.tap_random(x - 100, y - 100, x + 100, y + 100)
-            time.sleep(0.25)
+            time.sleep(0.2)
             if i % 10 == 0:
                 Adb.screen_shot(self.__png_name, self.__screenshot_path)
         for i in range(10):
             Adb.tap_random(red_x_500 - 100, red_y - 100, red_x_500 + 100, red_y + 100)
-            time.sleep(0.25)
+            time.sleep(0.2)
         Adb.screen_shot(self.__png_name, self.__screenshot_path)
